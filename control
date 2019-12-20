@@ -1,0 +1,10 @@
+Package: com.nito.tvsettings-link
+Name: Settings Link 
+Depends: mobilesubstrate
+Version: 1.0
+Architecture: appletvos-arm64
+Description: A stop gap tweak to enable deep linking in TVSettings Application
+Maintainer: Kevin Bradley
+Author: Kevin Bradley
+Section: Tweaks
+
