@@ -7,7 +7,7 @@ DEBUG=0
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = TVPrefs
-TVPrefs_FILES = TVPrefs.xm
+TVPrefs_FILES = TVPrefs.xm UIView+RecursiveFind.m
 TVPrefs_LIBRARIES = substrate
 TVPrefs_FRAMEWORKS = Foundation UIKit CoreGraphics MobileCoreServices
 TVPrefs_LDFLAGS = -undefined dynamic_lookup

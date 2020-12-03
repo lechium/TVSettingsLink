@@ -1,4 +1,14 @@
 #import <UIKit/UIKit.h>
+#import "UIView+RecursiveFind.m"
+
+@interface TVSettingsBluetoothFacade : NSObject
+- (void)stopScanning;
+- (void)startScanning;
+@end
+
+@interface TVSettingsBluetoothViewController: UIViewController
+- (id)initWithFacade:(id)arg1;
+@end
 
 @interface _TVSettingsOpenURLConfig : NSObject
 
@@ -16,6 +26,22 @@
 -(UIViewController *)_controllerForIdentifier:(NSString *)identifier;
 @end
 
+%hook TVSettingsBluetoothViewController
+- (void)viewDidAppear:(BOOL)animated {
+	%orig;
+	if (@available(tvOS 14.0, *)){
+		id btFacade = [self valueForKey:@"_bluetoothFacade"];
+		NSLog(@"[TVSettingsLink] btfacade: %@", btFacade);
+		[btFacade startScanning];
+		UIView *view = [self view];
+		UIActivityIndicatorView *av = (UIActivityIndicatorView*)[view findFirstSubviewWithClass:[UIActivityIndicatorView class]];
+		if (av){
+			NSLog(@"[TVSettingsLink] av: %@", av);
+			[av startAnimating];
+		}
+	}
+}
+%end
 
 %hook TVSettingsAppDelegate
 
@@ -35,6 +61,12 @@
 		cls = NSClassFromString(@"DTTVMainViewController");
 	} else if ([identifier isEqualToString:@"settings-remotes-bluetooth"]){
 		cls = NSClassFromString(@"TVSettingsBluetoothViewController");
+		if (@available(tvOS 14.0, *)){
+				id btFacade = [[%c(TVSettingsBluetoothFacade) alloc]init];
+				id controller = [[cls alloc] initWithFacade:btFacade];
+				[btFacade startScanning];
+				return controller;
+		}
 	} else if ([identifier isEqualToString:@"settings-network"]){
 		cls = NSClassFromString(@"TVSettingsNetworkViewController");
 	} else if ([identifier isEqualToString:@"settings-tweaks"]){
@@ -48,7 +80,7 @@
 - (_Bool)_openURLConfiguration:(id)arg1 {
 	BOOL orig = %orig;
 	NSArray *parsedPathComponents = [arg1 parsedPathComponents];
-	NSURL *origUrl = [arg1 originalURL];
+	//NSURL *origUrl = [arg1 originalURL];
 	if (parsedPathComponents.count > 0){
 		NSString *identifier = parsedPathComponents.lastObject;
 		//NSLog(@"identifier: %@", identifier);
